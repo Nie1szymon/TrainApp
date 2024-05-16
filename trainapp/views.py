@@ -1,13 +1,16 @@
 from rest_framework import generics
 from rest_framework import mixins
-
+from django.contrib.auth.models import User
 from .models import Plans, Trainings, Exercises
-from .serializers import PlansSerializer, TrainingsSerializer, ExercisesSerializer
+from .permissions import IsOwnerOrReadOnly
+from .serializers import PlansSerializer, TrainingsSerializer, ExercisesSerializer, UserSerializer
+from rest_framework import permissions
 
 
 class PlansList(mixins.ListModelMixin,
                 mixins.CreateModelMixin,
                 generics.GenericAPIView):
+
     queryset = Plans.objects.all()
     serializer_class = PlansSerializer
 
@@ -17,11 +20,15 @@ class PlansList(mixins.ListModelMixin,
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class PlansDetail(mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin,
                   generics.GenericAPIView):
+
     queryset = Plans.objects.all()
     serializer_class = PlansSerializer
 
@@ -34,7 +41,14 @@ class PlansDetail(mixins.RetrieveModelMixin,
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 class TrainingsList(generics.ListAPIView):
     queryset = Trainings.objects.all()
     serializer_class = TrainingsSerializer
