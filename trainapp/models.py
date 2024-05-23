@@ -25,6 +25,11 @@ class Plans(models.Model):
         super().save(*args, **kwargs)
 
 
+class PlansUsers(models.Model):
+    user = models.ForeignKey('auth.User', related_name= 'users', on_delete=models.CASCADE)
+    plan = models.ForeignKey(Plans, on_delete=models.CASCADE)
+
+
 class Trainings(models.Model):
     name = models.CharField(max_length=120, blank=False, default='')
     desc = models.TextField(blank=True, default='')
