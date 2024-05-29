@@ -39,8 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     "rest_framework.authtoken",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
     'trainapp',
     "authentication.apps.AuthenticationConfig",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
 ]
 
 MIDDLEWARE = [
@@ -110,6 +115,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+SITE_ID = 1
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
@@ -132,3 +139,22 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
     ]
 }
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp-relay.brevo.com"                    # smtp-relay.sendinblue.com
+EMAIL_USE_TLS = True                               # False
+EMAIL_PORT = "587"                    # 587
+EMAIL_HOST_USER = "75ad7b001@smtp-brevo.com"               # your email address
+EMAIL_HOST_PASSWORD = "pVtc35O9gqLSHJ8N"       # your password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+
+# <EMAIL_CONFIRM_REDIRECT_BASE_URL>/<key>
+EMAIL_CONFIRM_REDIRECT_BASE_URL = \
+    "http://localhost:3000/email/confirm/"
+
+# <PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL>/<uidb64>/<token>/
+PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = \
+    "http://localhost:3000/password-reset/confirm/"
