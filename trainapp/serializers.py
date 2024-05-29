@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Plans, PlansTrainigs, Trainings, Exercises, TrainingsExercises
+from .models import Plans, PlansTrainings, Trainings, Exercises, TrainingsExercises, PlansUsers
 
 
 class PlansSerializer(serializers.ModelSerializer):
@@ -9,6 +9,17 @@ class PlansSerializer(serializers.ModelSerializer):
     class Meta:
         model = Plans
         fields = ['id', 'name', 'desc', 'price', 'owner']
+
+
+class PlansUsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlansUsers
+        fields = ['plan']
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        validated_data['user'] = request.user
+        return super().create(validated_data)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,7 +44,7 @@ class ExercisesSerializer(serializers.ModelSerializer):
 
 class PlansTrainigsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PlansTrainigs
+        model = PlansTrainings
         fields = ['plans', 'trainings']
 
 

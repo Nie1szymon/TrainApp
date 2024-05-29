@@ -1,11 +1,14 @@
-from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import generics, status
 from rest_framework import mixins
 from django.contrib.auth.models import User
-from .models import Plans, Trainings, Exercises, PlansTrainigs, TrainingsExercises, PlansUsers
-from .permissions import IsOwnerOrReadOnly
+from rest_framework.views import APIView
+
+from .models import Plans, Trainings, Exercises, PlansTrainings, TrainingsExercises, PlansUsers
 from .serializers import PlansSerializer, TrainingsSerializer, ExercisesSerializer, UserSerializer, \
-    PlansTrainigsSerializer, TrainingsExercisesSerializer
+    PlansTrainigsSerializer, TrainingsExercisesSerializer, PlansUsersSerializer
 from rest_framework import permissions
+from rest_framework.permissions import IsAuthenticated
 
 
 class PlansList(mixins.ListModelMixin,
@@ -23,17 +26,30 @@ class PlansList(mixins.ListModelMixin,
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-class UserPlansList(generics.ListAPIView):
-    queryset = Plans.objects.filter(userplans__user=self.request.user)  # Filter by user from request
-    serializer_class = PlansSerializer
 
-    def get_queryset(self):
-        # Alternatively, use a Django ORM filter backend for efficiency with large datasets
-        queryset = super().get_queryset()
-        user = self.request.user
-        if user.is_authenticated:
-            queryset = queryset.filter(userplans__user=user)
-        return queryset
+class UserPlansView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            plans_users = PlansUsers.objects.filter(user=user)
+            plans = [pu.plan for pu in plans_users]
+            serializer = PlansSerializer(plans, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            serializer = PlansUsersSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class PlansDetail(mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
@@ -83,12 +99,12 @@ class ExercisesDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class PlansTrainingList(generics.ListAPIView):
-    queryset = PlansTrainigs.objects.all()
+    queryset = PlansTrainings.objects.all()
     serializer_class = PlansTrainigsSerializer
 
 
 class PlansTrainingDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = PlansTrainigs.objects.all()
+    queryset = PlansTrainings.objects.all()
     serializer_class = PlansTrainigsSerializer
 
 

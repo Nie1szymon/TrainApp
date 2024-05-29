@@ -1,8 +1,11 @@
 from django.urls import path, include
 from rest_framework.urlpatterns import format_suffix_patterns
+
+
 from trainapp import views
 
 urlpatterns = [
+    path('user/plans/', views.UserPlansView.as_view(), name='user-plans-view'),
     path('plans/', views.PlansList.as_view(), name='plans_list'),
     path('plans/<int:pk>/', views.PlansDetail.as_view(), name='plans_detail'),
     path('trainings/', views.TrainingsList.as_view(), name='trainings_list'),
