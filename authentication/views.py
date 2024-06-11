@@ -1,5 +1,12 @@
 from django.conf import settings
 from django.http import HttpResponseRedirect
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+
+
+def get_csrf_token(request):
+    csrf_token = get_token(request)
+    return JsonResponse({'csrfToken': csrf_token})
 
 
 def email_confirm_redirect(request, key):

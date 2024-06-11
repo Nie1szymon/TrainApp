@@ -16,7 +16,9 @@ urlpatterns = [
     path('trainingsexercises/<int:pk>/', views.TrainingsExerciseDetail.as_view(), name='trainingsexercises_detail'),
     path('users/', views.UserList.as_view()),
     path('users/<int:pk>/', views.UserDetail.as_view()),
-    path('api-auth/', include('rest_framework.urls'))
+    path('api-auth/', include('rest_framework.urls')),
+    path('plans/<int:plan_id>/trainings/', views.PlanExtTrainings.as_view(), name='plan_ext_trainings'),
+    path('trainings/<int:training_id>/exercises/', views.TrainingExtExercises.as_view(), name='training_ext_exercises'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

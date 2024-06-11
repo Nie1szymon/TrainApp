@@ -116,3 +116,25 @@ class TrainingsExerciseList(generics.ListAPIView):
 class TrainingsExerciseDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = TrainingsExercises.objects.all()
     serializer_class = TrainingsExercisesSerializer
+
+
+class PlanExtTrainings(APIView):
+    def get(self, request, plan_id, *args, **kwargs):
+        try:
+            plan = Plans.objects.get(pk=plan_id)
+            plans_trainings = PlansTrainings.objects.filter(plans=plan)
+            trainings = [pt.trainings for pt in plans_trainings]
+            serializer = TrainingsSerializer(trainings, many=True)
+            return Response(serializer.data)
+        except Plans.DoesNotExist:
+            return Response({'error': 'Plan not found'}, status=404)
+
+class TrainingExtExercises(APIView):
+    def get(self, request, training_id, *args, **kwargs):
+        try:
+            training = Trainings.objects.get(pk=training_id)
+            training_exercises = TrainingsExercises.objects.filter(trainings=training).select_related('exercises')
+            serializer = TrainingsExercisesSerializer(training_exercises, many=True)
+            return Response(serializer.data)
+        except Trainings.DoesNotExist:
+            return Response({'error': 'Training not found'}, status=404)

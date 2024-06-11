@@ -49,6 +49,9 @@ class PlansTrainigsSerializer(serializers.ModelSerializer):
 
 
 class TrainingsExercisesSerializer(serializers.ModelSerializer):
+    exercises_name = serializers.CharField(source='exercises.name')
+    exercises_desc = serializers.CharField(source='exercises.desc')
+
     class Meta:
         model = TrainingsExercises
-        fields = ['trainings', 'exercises', 'series', 'repeat']
+        fields = ['trainings', 'exercises_name', 'exercises_desc', 'series', 'repeat']
