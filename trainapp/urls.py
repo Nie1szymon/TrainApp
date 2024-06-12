@@ -19,6 +19,9 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('plans/<int:plan_id>/trainings/', views.PlanExtTrainings.as_view(), name='plan_ext_trainings'),
     path('trainings/<int:training_id>/exercises/', views.TrainingExtExercises.as_view(), name='training_ext_exercises'),
+    path('user/owned-plans/', views.UserOwnedPlansView.as_view(), name='user-owned-plans'),
+    path('exercises/', views.ExercisesList.as_view(), name='exercises_list'),
+    path('exercises/<int:pk>/', views.ExercisesDetail.as_view(), name='exercises_detail'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

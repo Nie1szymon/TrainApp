@@ -27,6 +27,15 @@ class PlansList(mixins.ListModelMixin,
         serializer.save(owner=self.request.user)
 
 
+class UserOwnedPlansView(generics.ListAPIView):
+    serializer_class = PlansSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Plans.objects.filter(owner=user)
+
+
 class UserPlansView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -131,10 +140,15 @@ class PlanExtTrainings(APIView):
 
 class TrainingExtExercises(APIView):
     def get(self, request, training_id, *args, **kwargs):
-        try:
-            training = Trainings.objects.get(pk=training_id)
-            training_exercises = TrainingsExercises.objects.filter(trainings=training).select_related('exercises')
-            serializer = TrainingsExercisesSerializer(training_exercises, many=True)
-            return Response(serializer.data)
-        except Trainings.DoesNotExist:
-            return Response({'error': 'Training not found'}, status=404)
+        exercises = TrainingsExercises.objects.filter(trainings_id=training_id)
+        serializer = TrainingsExercisesSerializer(exercises, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, training_id, *args, **kwargs):
+        data = request.data
+        data['trainings'] = training_id
+        serializer = TrainingsExercisesSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -49,9 +49,15 @@ class PlansTrainigsSerializer(serializers.ModelSerializer):
 
 
 class TrainingsExercisesSerializer(serializers.ModelSerializer):
-    exercises_name = serializers.CharField(source='exercises.name')
-    exercises_desc = serializers.CharField(source='exercises.desc')
+    exercises_name = serializers.CharField(source='exercises.name', read_only=True)
+    exercises_desc = serializers.CharField(source='exercises.desc', read_only=True)
+    exercises = serializers.PrimaryKeyRelatedField(queryset=Exercises.objects.all(), write_only=True)
 
     class Meta:
         model = TrainingsExercises
-        fields = ['trainings', 'exercises_name', 'exercises_desc', 'series', 'repeat']
+        fields = ['id', 'trainings', 'exercises', 'series', 'repeat', 'exercises_name', 'exercises_desc']
+
+    def create(self, validated_data):
+        exercise = validated_data.pop('exercises')
+        training_exercise = TrainingsExercises.objects.create(exercises=exercise, **validated_data)
+        return training_exercise
